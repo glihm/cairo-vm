@@ -507,6 +507,46 @@ pub fn parse_program_json(
     })
 }
 
+impl From<Program> for ProgramJson {
+    fn from(program: Program) -> Self {
+        let references = program
+            .shared_program_data
+            .reference_manager
+            .clone()
+            .into_iter()
+            .map(|r| Reference {
+                value_address: ValueAddress {
+                    offset1: r.offset1,
+                    offset2: r.offset2,
+                    dereference: r.dereference,
+                    value_type: r.cairo_type.unwrap_or_default(),
+                },
+                ap_tracking_data: r.ap_tracking_data.unwrap_or_default(),
+                pc: None,
+            })
+            .collect::<Vec<_>>();
+
+        //let hints: BTreeMap<usize, Vec<HintParams>> = (&program.shared_program_data.hints_collection).into();
+
+        Self {
+            prime: program.prime().into(),
+            builtins: program.builtins,
+            data: program.shared_program_data.data.clone(),
+            identifiers: program.shared_program_data.identifiers.clone(),
+            hints: (&program.shared_program_data.hints_collection).into(),
+            attributes: program.shared_program_data.error_message_attributes.clone(),
+            debug_info: program
+                .shared_program_data
+                .instruction_locations
+                .clone()
+                .map(|instruction_locations| DebugInfo {
+                    instruction_locations,
+                }),
+            reference_manager: ReferenceManager { references },
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
