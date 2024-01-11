@@ -507,6 +507,10 @@ pub fn parse_program_json(
     })
 }
 
+pub struct MyTest {
+    pub a: u32,
+}
+
 impl From<Program> for ProgramJson {
     fn from(program: Program) -> Self {
         let references = program
@@ -525,8 +529,6 @@ impl From<Program> for ProgramJson {
                 pc: None,
             })
             .collect::<Vec<_>>();
-
-        //let hints: BTreeMap<usize, Vec<HintParams>> = (&program.shared_program_data.hints_collection).into();
 
         Self {
             prime: program.prime().into(),
